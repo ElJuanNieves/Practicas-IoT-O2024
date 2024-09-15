@@ -1,4 +1,4 @@
-#include <Arduino.h>
+/*#include <Arduino.h>*/
 #include <WiFi.h>
 WiFiServer server(80);
 WiFiClient client;
