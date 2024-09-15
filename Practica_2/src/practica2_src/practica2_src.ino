@@ -1,9 +1,10 @@
 /*#include <Arduino.h>*/
 #include <WiFi.h>
-WiFiServer server(80);
-WiFiClient client;
+#include <WiFiClient.h>
 
-const char* ssid = "INFINITUM94DF_5";
+WiFiServer server(80);
+
+const char* ssid = "INFINITUM94DF_2.4";
 const char* password = "5YP7Cnsn4A";
 
 #ifdef __cplusplus
@@ -22,24 +23,28 @@ void setup()
   delay(3000);
   Serial.println("Iniciando");
   WiFi.begin(ssid, password);
-  while (!(WiFi.status() == WL_CONNECTED)){
-    Serial.print("......");
-    delay(300);
+  while (!(WiFi.status() == WL_CONNECTED)) {
+    Serial.print(".");
+    delay(800);
   }
   Serial.println("Conexion establecida con el SSDI!");
   Serial.println((WiFi.localIP()));
   server.begin();
+  Serial.println("Servidor web iniciado.");
 }
 
 void loop()
 {
-  client = server.available();
-  if (!client) { 
-    return; 
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
   }
-  while(!client.available()){ 
-    delay(1); 
+  while (!client.available()) {
+    delay(1);
   }
+
+  Serial.println("Cliente conectado");
+  
   client.flush();
   client.println("HTTP/1.1 200 OK");
   client.println("Content-Type: text/html");
@@ -61,7 +66,7 @@ void loop()
   client.println("Esta pagina web ha estado activa por");
   client.println("</span>");
   client.println("<span style=""color:#009900;font-size:20px"">");
-  client.println((millis()/1000));
+  client.println((millis() / 1000));
   client.println("</span>");
   client.println("<span style=""color:#cc6600;font-size:14px"">");
   client.println("segundos");
@@ -78,5 +83,5 @@ void loop()
   client.println("</span>");
   client.println("</body>");
   client.println("</html>");
-  delay(1);
+  delay(10);
 }
