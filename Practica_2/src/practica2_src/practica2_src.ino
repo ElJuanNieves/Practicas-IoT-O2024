@@ -3,6 +3,9 @@
 WiFiServer server(80);
 WiFiClient client;
 
+const char* ssid = "INFINITUM94DF_5";
+const char* password = "5YP7Cnsn4A";
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,7 +21,7 @@ void setup()
   WiFi.disconnect();
   delay(3000);
   Serial.println("Iniciando");
-  WiFi.begin("CASTOR-PLAY___2.4Gnormal", "Cas123Tor2022");
+  WiFi.begin(ssid, password);
   while (!(WiFi.status() == WL_CONNECTED)){
     Serial.print("......");
     delay(300);
