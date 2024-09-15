@@ -1,7 +1,8 @@
 #include <WiFiClient.h>
+#include <WiFi.h>
 
-const char* ssid = "Mi_WiFi";
-const char* password = "Mi_Password";
+const char* ssid = "INFINITUM94DF_2.4";
+const char* password = "5YP7Cnsn4A";
 WiFiServer server(80);
 
 // Se tiene un LED incorporado en terminal 2, se puede usar otro GPIO
@@ -12,7 +13,7 @@ String estado = "";
 void setup() {
   Serial.begin(115200);
   pinMode(LED, OUTPUT);
-  digitalWrite(LED, LOW);
+  digitalWrite(LED, HIGH);
 
   // Conectando a WiFi
   WiFi.begin(ssid, password);
