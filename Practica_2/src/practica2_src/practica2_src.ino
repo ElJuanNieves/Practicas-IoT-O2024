@@ -72,7 +72,7 @@ void loop() {
   client.println("<head><meta charset=utf-8></head>");
   client.println("<body><center><font face='Arial'>");
   client.println("<h1>Servidor web con ESP32.</h1>");
-  client.println("<h1>Guadalupe Torres</h1>");
+  client.println("<h1>Roberto Osorno</h1>");
   client.println("<h2><font color='#009900'>Webserver 1.0</font></h2>");
   client.println("<h3>Práctica boton</h3>");
   client.println("<br><br>");
