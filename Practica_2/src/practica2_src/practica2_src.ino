@@ -4,8 +4,8 @@
 
 WiFiServer server(80);
 
-const char* ssid = "INFINITUM94DF_2.4";
-const char* password = "5YP7Cnsn4A";
+const char* ssid = "IoT";
+const char* password = "1t3s0IoT23";
 
 #ifdef __cplusplus
 extern "C" {
