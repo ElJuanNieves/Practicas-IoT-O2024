@@ -4,8 +4,8 @@
 
 WiFiServer server(80);
 
-const char* ssid = "IoT";
-const char* password = "1t3s0IoT23";
+const char* ssid = "iPhone de Roberto";
+const char* password = "Frodo2024";
 
 #ifdef __cplusplus
 extern "C" {
