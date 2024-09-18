@@ -1,8 +1,8 @@
 #include <WiFiClient.h>
 #include <WiFi.h>
 
-const char* ssid = "INFINITUM94DF_2.4";
-const char* password = "5YP7Cnsn4A";
+const char* ssid = "IoT";
+const char* password = "1t3s0IoT23";
 WiFiServer server(80);
 
 // Se tiene un LED incorporado en terminal 2, se puede usar otro GPIO
