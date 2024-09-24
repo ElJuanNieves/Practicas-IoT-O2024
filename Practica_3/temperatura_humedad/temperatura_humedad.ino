@@ -1,4 +1,3 @@
-// Prácticas IoT - Práctica realizada por Profesora: Guadalupe Torres
 #include <Wire.h>                 // Librería para la comunicación I2C
 #include <Adafruit_GFX.h>          // Librería gráfica para manejar displays
 #include <Adafruit_SSD1306.h>      // Librería para el display OLED SSD1306
