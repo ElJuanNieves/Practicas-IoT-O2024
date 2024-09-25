@@ -1,0 +1,21 @@
+Actividades Sensor temperatura y humedad.
+1. tocar el sensor por unos momentos con los dedos… que pasa?
+Aumenta la temperatura ligeramente se necesitan mantener los dedos lo suficiente para que lo detecte.
+
+
+2. Acercarse al sensor y aventar un poco de aliento (vaho)… que pasa???
+Aumenta la humedad ligeramente. Para notar un cambio significativo es necesario aventar el suficiente aire
+
+3. Como siempre sube tu código, y fotos de diferentes resultados (del sensor) a github, NO OLVIDES cambiar mi nombre por tu nombre en el código par que en github quede con tu nombre, de lo contrario se bajarán algunos puntos de la calificación de la práctica
+
+
+4. Para cerrar la tarea en canvas sube el link a tu github y pon una breve reflexión de como probaste y respuesta breve a lsapreguntas.
+
+Sensor Ultrasonico
+1. Realiza diferentes medidas, al techo, a un objeto para ver las diferentes distancias cosas hacia el sensor….
+¿Hay algún comportamiento inesperado en las lecturas? Si es así, ¿qué observaste?
+No hay comportamientos inesperados de acuerdo a la hoja de datos, esta curioso que al poner objetos muy serca los ignora y toma la medicion del siguiente objeto
+
+
+2. Como siempre sube tu código, y fotos de diferentes resultados (del sensor) a github, NO OLVIDES cambiar mi nombre por tu nombre en el código para que en githubquede con tu nombre, de lo contrario se bajarán algunos puntos de la calificación de la práctica
+3. Para cerrar la tarea en canvas sube el link a tu github y pon una breve reflexión de como probaste y respuesta breve a las preguntas anteriores
