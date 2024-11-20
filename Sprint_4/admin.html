@@ -63,6 +63,14 @@
 </head>
 <body>
   <div class="container">
+    <!-- Register User Section -->
+    <div class="section">
+      <h1>Register New User</h1>
+      <input type="email" id="newUserEmail" class="form-control" placeholder="User Email">
+      <input type="password" id="newUserPassword" class="form-control" placeholder="User Password">
+      <button id="registerUserButton" class="btn btn-custom">Register User</button>
+    </div>
+
     <!-- Emergency Contacts Section -->
     <div class="section">
       <h1>Emergency Contacts</h1>
@@ -70,25 +78,12 @@
       <input type="text" id="contactPhone" class="form-control" placeholder="Contact Phone">
       <button id="addContactButton" class="btn btn-custom">Add Emergency Contact</button>
     </div>
-
-    <!-- Current Data Section -->
-    <div class="section">
-      <h1>Latest Data</h1>
-      <div id="currentData" class="data-section">Loading current data...</div>
-    </div>
-
-    <!-- Historical Data Section -->
-    <div class="section">
-      <h1>Historical Data</h1>
-      <button id="fetchHistoricalData" class="btn btn-custom">Toggle Historical Data</button>
-      <div id="historicalData" class="data-section" style="display: none;"></div>
-    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDKMA_pA49hs-JzH-XqQ-7rHlu5dfuJnXs",
@@ -104,70 +99,61 @@
     const auth = getAuth();
     const db = getFirestore(app);
 
-    const apiKey = '3J0OXU8FGWL8F5YO'; 
-    const channelId = '2722365'; 
+    let currentUserID = null;
 
+    // Function to register a new user
+    async function registerUser() {
+      const email = document.getElementById('newUserEmail').value;
+      const password = document.getElementById('newUserPassword').value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userId = userCredential.user.uid;
+
+        // Save user data in Firestore
+        await setDoc(doc(db, "users", userId), {
+          email: email,
+          role: "user",
+          linkedTo: auth.currentUser.uid // Link to admin
+        });
+
+        currentUserID = userId; // Set current user ID for emergency contacts
+        alert("User registered successfully and linked to your account.");
+      } catch (error) {
+        console.error("Error registering user:", error);
+        alert("Error: " + error.message);
+      }
+    }
+
+    // Event listener for registering users
+    document.getElementById('registerUserButton').addEventListener('click', registerUser);
+
+    // Function to add emergency contact for the registered user
     async function addContact() {
+      if (!currentUserID) {
+        alert("Please register a user first.");
+        return;
+      }
+
       const contactName = document.getElementById('contactName').value;
       const contactPhone = document.getElementById('contactPhone').value;
+
       try {
-        await addDoc(collection(db, "emergencyContacts"), {
+        // Add contact to Firestore under the current user
+        await addDoc(collection(db, `users/${currentUserID}/emergencyContacts`), {
           name: contactName,
           phone: contactPhone
         });
-        alert('Emergency contact added successfully');
+        alert('Emergency contact added successfully.');
       } catch (error) {
         console.error('Error adding contact:', error);
         alert('Error: ' + error.message);
       }
     }
 
+    // Event listener for adding emergency contacts
     document.getElementById('addContactButton').addEventListener('click', addContact);
-
-    async function fetchData() {
-      try {
-        const response = await fetch(`https://api.thingspeak.com/channels/${channelId}/feeds/last.json?api_key=${apiKey}`);
-        const data = await response.json();
-        const currentDataDiv = document.getElementById('currentData');
-        currentDataDiv.innerHTML = `
-          <p><strong>Time:</strong> ${data.created_at}</p>
-          <p><strong>Acceleration:</strong> ${data.field1}</p>
-          <p><strong>Distance:</strong> ${data.field2}</p>
-        `;
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }
-
-    async function fetchHistoricalData() {
-      const historicalDataDiv = document.getElementById('historicalData');
-      if (historicalDataDiv.style.display === 'none') {
-        try {
-          const response = await fetch(`https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=50`);
-          const data = await response.json();
-          historicalDataDiv.innerHTML = data.feeds.map(feed => `
-            <div>
-              <p><strong>Time:</strong> ${feed.created_at}</p>
-              <p><strong>Acceleration:</strong> ${feed.field1}</p>
-              <p><strong>Distance:</strong> ${feed.field2}</p>
-            </div>
-            <hr>
-          `).join('');
-          historicalDataDiv.style.display = 'block';
-        } catch (error) {
-          console.error('Error fetching historical data:', error);
-        }
-      } else {
-        historicalDataDiv.style.display = 'none';
-      }
-    }
-
-    window.onload = () => {
-      fetchData();
-      setInterval(fetchData, 15000); // Refresh every 15 seconds
-    };
-
-    document.getElementById('fetchHistoricalData').addEventListener('click', fetchHistoricalData);
   </script>
 </body>
 </html>
+
