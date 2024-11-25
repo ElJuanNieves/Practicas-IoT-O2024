@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ThingSpeak Data</title>
   <style>
     /* Estilo general */
@@ -44,87 +46,92 @@
       cursor: pointer;
       font-size: 16px;
     }
-
-    .button:hover {
-      background-color: #4b0082; /* Tonalidad más oscura al pasar el mouse */
-    }
-
-    /* Contenedor de datos históricos */
-    #historicalData {
-      margin-top: 20px;
-      max-width: 600px;
-      font-size: 14px;
-      text-align: left;
-      color: #4b0082;
-    }
   </style>
 </head>
 <body>
-  <h1 style="color: #6a0dad;">Datos de ThingSpeak</h1>
-
-  <!-- Acelerómetro -->
-  <div class="card" id="accelerometerCard">
-    <h3>Aceleración</h3>
-    <div id="field1">Cargando...</div>
+  <h1>ThingSpeak Data</h1>
+  <div id="emergencyContact" class="card">
+    <h2>Emergency Contact</h2>
+    <p id="contactInfo">Loading...</p>
   </div>
-
-  <!-- Llamada de Emergencia -->
-  <div class="card" id="emergencyCard">
-    <h3>Llamada de emergencia</h3>
-    <p>Estado: Normal</p>
-  </div>
-
-  <!-- Botón para consultar históricos -->
-  <div class="card">
-    <h3>Consultar históricos</h3>
-    <button id="fetchHistoricalData" class="button">Obtener históricos</button>
+  <div id="data">
+    <h2>Data</h2>
+    <div id="currentData"></div>
+    <button id="fetchHistoricalData" class="button">Fetch Historical Data</button>
     <div id="historicalData"></div>
   </div>
 
-  <script>
-    const apiKey = '3J0OXU8FGWL8F5YO'; 
-    const channelId = '2722365'; 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-    // Función para actualizar datos en tiempo real
-    function fetchData() {
-      fetch(`https://api.thingspeak.com/channels/${channelId}/feeds/last.json?api_key=${apiKey}`)
-        .then(response => response.json())
-        .then(data => {
-          const field1 = parseFloat(data.field1); // Valor del acelerómetro
-          document.getElementById('field1').textContent = field1 + " m/s²";
+    const firebaseConfig = {
+      apiKey: "AIzaSyDKMA_pA49hs-JzH-XqQ-7rHlu5dfuJnXs",
+      authDomain: "practica7-d8ae6.firebaseapp.com",
+      projectId: "practica7-d8ae6",
+      storageBucket: "practica7-d8ae6.firebasestorage.app",
+      messagingSenderId: "95898000945",
+      appId: "1:95898000945:web:0d84e9177e0182fe483f10",
+      measurementId: "G-EKV95G287W"
+    };
 
-          // Cambiar estado de la tarjeta de emergencia
-          const emergencyCard = document.getElementById('emergencyCard');
-          if (field1 > 30000) {
-            emergencyCard.classList.add('emergency');
-            emergencyCard.querySelector('p').textContent = "Estado: Emergencia";
-          } else {
-            emergencyCard.classList.remove('emergency');
-            emergencyCard.querySelector('p').textContent = "Estado: Normal";
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const contactInfo = document.getElementById('contactInfo');
+          const emergencyContactsRef = collection(db, `users/${user.uid}/emergencyContacts`);
+          const emergencyContactsSnapshot = await getDocs(emergencyContactsRef);
+          emergencyContactsSnapshot.forEach(doc => {
+            const contactData = doc.data();
+            contactInfo.textContent = `Name: ${contactData.name}, Phone: ${contactData.phone}`;
+          });
+        } else {
+          console.error('No such document!');
+        }
+      } else {
+        window.location.href = 'home.html'; // Redirigir a home.html si no está autenticado
+      }
+    });
+
+    // Función para obtener datos actuales
+    async function fetchData() {
+      try {
+        const response = await fetch(`https://api.thingspeak.com/channels/2722365/feeds.json?api_key=3J0OXU8FGWL8F5YO&results=1`);
+        const data = await response.json();
+        const currentDataDiv = document.getElementById('currentData');
+        currentDataDiv.innerHTML = '';
+        data.feeds.forEach(feed => {
+          const p = document.createElement('p');
+          p.textContent = `Time: ${feed.created_at}, Aceleración: ${feed.field1}, Distancia: ${feed.field2}`;
+          currentDataDiv.appendChild(p);
         });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     }
 
     // Función para consultar datos históricos
-    function fetchHistoricalData() {
-      fetch(`https://api.thingspeak.com/channels/${channelId}/feeds.json?api_key=${apiKey}&results=50`)
-        .then(response => response.json())
-        .then(data => {
-          const historicalDataDiv = document.getElementById('historicalData');
-          historicalDataDiv.innerHTML = ''; // Limpiar contenido previo
-
-          data.feeds.forEach(feed => {
-            const div = document.createElement('div');
-            div.textContent = `Time: ${feed.created_at}, Aceleración: ${feed.field1}, Distancia: ${feed.field2}`;
-            historicalDataDiv.appendChild(div);
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching historical data:', error);
+    async function fetchHistoricalData() {
+      try {
+        const response = await fetch(`https://api.thingspeak.com/channels/2722365/feeds.json?api_key=3J0OXU8FGWL8F5YO&results=50`);
+        const data = await response.json();
+        const historicalDataDiv = document.getElementById('historicalData');
+        historicalDataDiv.innerHTML = ''; // Limpiar contenido previo
+        data.feeds.forEach(feed => {
+          const div = document.createElement('div');
+          div.textContent = `Time: ${feed.created_at}, Aceleración: ${feed.field1}, Distancia: ${feed.field2}`;
+          historicalDataDiv.appendChild(div);
         });
+      } catch (error) {
+        console.error('Error fetching historical data:', error);
+      }
     }
 
     // Configurar eventos
